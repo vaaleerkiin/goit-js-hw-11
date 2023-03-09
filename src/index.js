@@ -2,10 +2,7 @@ import './js/top__link';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import fetchData from './js/API_SERVICE';
 import SimpleLightbox from 'simplelightbox';
-import lazyload from 'lazyload';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-
-new lazyload(document.querySelectorAll('.img__wrap img'));
 const fetchNewData = new fetchData();
 let queryValue = '';
 
@@ -106,7 +103,7 @@ function renderMarkup(response) {
         <a class="gallary__link" href="${largeImageURL}">
 <div class="photo-card">
  <div class="img__wrap">
-  <img src="${webformatURL}" alt="${tags}"  />
+  <img src="${webformatURL}" alt="${tags}" loading="lazy" />
   </div>
   <div class="info">
     <p class="info-item">
