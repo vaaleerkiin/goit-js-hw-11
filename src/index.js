@@ -78,6 +78,8 @@ async function onReadMore() {
 
   renderMarkup(response.hits);
 
+  gallery.refresh();
+
   removeDisabledBtn();
   const { height: cardHeight } = document
     .querySelector('.gallery')
