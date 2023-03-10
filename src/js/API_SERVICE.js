@@ -20,7 +20,6 @@ export default class fetchData {
       },
     };
     const response = await axios.get(this.URL, options);
-    console.log(response.data);
     return response.data;
   }
   resetPage() {

@@ -17,10 +17,10 @@ const refs = {
 };
 
 refs.form.addEventListener('submit', e => {
+  e.preventDefault();
   if (refs.input.value.trim() === '') return;
   queryValue = refs.input.value.trim();
   onSubmit();
-  e.preventDefault();
 });
 
 async function onSubmit() {
@@ -29,6 +29,12 @@ async function onSubmit() {
   disabledBtn('submit');
 
   const response = await fetchNewData.makeRequest(queryValue);
+  if (
+    fetchNewData.page === Math.ceil(response.totalHits / fetchNewData.per_page)
+  ) {
+    removeReadMore();
+  } else addReadMore();
+
   if (response.hits.length === 0) {
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -42,8 +48,6 @@ async function onSubmit() {
   renderMarkup(response.hits);
 
   gallery.refresh();
-
-  addReadMore();
 
   removeDisabledBtn('submit');
 
@@ -68,6 +72,13 @@ async function onReadMore() {
   disabledBtn();
 
   const response = await fetchNewData.makeRequest(queryValue);
+
+  if (
+    fetchNewData.page === Math.ceil(response.totalHits / fetchNewData.per_page)
+  ) {
+    removeReadMore();
+    Notify.info('No more images');
+  }
 
   if (response.hits.length === 0) {
     Notify.info(`We're sorry, but you've reached the end of search results.`);
