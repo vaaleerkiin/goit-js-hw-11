@@ -1,11 +1,14 @@
 import './js/top__link';
+import Pagination from './js/pagination';
+
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import fetchData from './js/API_SERVICE';
 import SimpleLightbox from 'simplelightbox';
+
 import 'simplelightbox/dist/simple-lightbox.min.css';
 const fetchNewData = new fetchData();
 let queryValue = '';
-
+let totalAmount = null;
 let gallery = new SimpleLightbox('.gallery a');
 
 const refs = {
@@ -29,11 +32,17 @@ async function onSubmit() {
   disabledBtn('submit');
 
   const response = await fetchNewData.makeRequest(queryValue);
+
+  pagination.paginationContainer.innerHTML = '';
+
+  fetchNewData.totalPage = Math.ceil(
+    response.totalHits / fetchNewData.per_page
+  );
+
   if (
     fetchNewData.page === Math.ceil(response.totalHits / fetchNewData.per_page)
   ) {
-    removeReadMore();
-  } else addReadMore();
+  }
 
   if (response.hits.length === 0) {
     Notify.failure(
@@ -41,7 +50,14 @@ async function onSubmit() {
     );
     removeDisabledBtn('submit');
     return;
-  } else Notify.success(`Hooray! We found ${response.totalHits} images.`);
+  } else {
+    Notify.success(`Hooray! We found ${response.totalHits} images.`);
+    totalAmount = response.totalHits;
+  }
+
+  const pag = pagination.createPagination(fetchNewData.totalPage, 1);
+
+  pagination.renderPagination(pag);
 
   clearAMarkup();
 
@@ -50,8 +66,6 @@ async function onSubmit() {
   gallery.refresh();
 
   removeDisabledBtn('submit');
-
-  fetchNewData.incrementPage();
 }
 
 refs.readMore.addEventListener('click', () => {
@@ -59,46 +73,6 @@ refs.readMore.addEventListener('click', () => {
 
   onReadMore();
 });
-
-function addReadMore() {
-  refs.readMore.style.opacity = '1';
-}
-
-function removeReadMore() {
-  refs.readMore.style.opacity = '0';
-}
-
-async function onReadMore() {
-  disabledBtn();
-
-  const response = await fetchNewData.makeRequest(queryValue);
-
-  if (
-    fetchNewData.page === Math.ceil(response.totalHits / fetchNewData.per_page)
-  ) {
-    removeReadMore();
-    Notify.info('No more images');
-  }
-
-  if (response.hits.length === 0) {
-    Notify.info(`We're sorry, but you've reached the end of search results.`);
-    removeReadMore();
-    removeDisabledBtn();
-    return;
-  }
-
-  renderMarkup(response.hits);
-
-  gallery.refresh();
-
-  removeDisabledBtn();
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
-
-  window.scrollBy(0, cardHeight * 2.5);
-  fetchNewData.incrementPage();
-}
 
 function renderMarkup(response) {
   const markup = response
@@ -163,4 +137,93 @@ function removeDisabledBtn(ar) {
 
 function clearAMarkup() {
   refs.gallery.innerHTML = '';
+}
+
+pagination = new Pagination();
+
+document
+  .getElementById('pagination-container')
+  .addEventListener('click', ev => {
+    if (ev.target.nodeName === 'BUTTON') {
+      onChangePage(ev.target);
+    }
+  });
+
+async function onChangePage(ev) {
+  if (ev.textContent == '<') {
+    fetchNewData.setPage(Number(fetchNewData.page) - 1);
+
+    const response = await fetchNewData.makeRequest(queryValue);
+    pagination.paginationContainer.innerHTML = '';
+    clearAMarkup();
+
+    renderMarkup(response.hits);
+
+    const pag = pagination.createPagination(
+      fetchNewData.totalPage,
+      fetchNewData.page
+    );
+
+    pagination.renderPagination(pag);
+  } else if (ev.textContent === '>') {
+    fetchNewData.setPage(Number(fetchNewData.page) + 1);
+
+    const response = await fetchNewData.makeRequest(queryValue);
+    pagination.paginationContainer.innerHTML = '';
+    clearAMarkup();
+
+    renderMarkup(response.hits);
+
+    const pag = pagination.createPagination(
+      fetchNewData.totalPage,
+      Number(fetchNewData.page)
+    );
+
+    pagination.renderPagination(pag);
+  } else if (ev.classList.contains('post-dots')) {
+    fetchNewData.setPage(
+      Math.ceil(Number(fetchNewData.page + fetchNewData.totalPage) / 2)
+    );
+
+    const response = await fetchNewData.makeRequest(queryValue);
+    pagination.paginationContainer.innerHTML = '';
+    clearAMarkup();
+
+    renderMarkup(response.hits);
+
+    const pag = pagination.createPagination(
+      fetchNewData.totalPage,
+      fetchNewData.page
+    );
+
+    pagination.renderPagination(pag);
+  } else if (ev.classList.contains('pre-dots')) {
+    fetchNewData.setPage(Math.ceil(Number(fetchNewData.page) / 2));
+
+    const response = await fetchNewData.makeRequest(queryValue);
+    pagination.paginationContainer.innerHTML = '';
+    clearAMarkup();
+
+    renderMarkup(response.hits);
+
+    const pag = pagination.createPagination(
+      fetchNewData.totalPage,
+      fetchNewData.page
+    );
+
+    pagination.renderPagination(pag);
+  } else {
+    ev = ev.textContent;
+    fetchNewData.setPage(ev);
+    const response = await fetchNewData.makeRequest(queryValue);
+    pagination.paginationContainer.innerHTML = '';
+    clearAMarkup();
+
+    renderMarkup(response.hits);
+
+    const pag = pagination.createPagination(fetchNewData.totalPage, Number(ev));
+
+    pagination.renderPagination(pag);
+  }
+  gallery.refresh();
 }

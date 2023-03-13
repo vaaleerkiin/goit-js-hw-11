@@ -3,7 +3,8 @@ export default class fetchData {
   constructor() {
     this.URL = 'https://pixabay.com/api/';
     this.page = 1;
-    this.per_page = 40;
+    this.per_page = 10;
+    this.totalPage = 0;
   }
 
   async makeRequest(ar) {
@@ -22,11 +23,17 @@ export default class fetchData {
     const response = await axios.get(this.URL, options);
     return response.data;
   }
+  async onChangePage() {}
+
   resetPage() {
     this.page = 1;
   }
 
   incrementPage() {
     this.page += 1;
+  }
+
+  setPage(page) {
+    this.page = page;
   }
 }
