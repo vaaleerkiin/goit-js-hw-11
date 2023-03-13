@@ -1,5 +1,6 @@
 import './js/top__link';
 import Pagination from './js/pagination';
+let pagination = new Pagination();
 
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import fetchData from './js/API_SERVICE';
@@ -138,8 +139,6 @@ function removeDisabledBtn(ar) {
 function clearAMarkup() {
   refs.gallery.innerHTML = '';
 }
-
-pagination = new Pagination();
 
 document
   .getElementById('pagination-container')
