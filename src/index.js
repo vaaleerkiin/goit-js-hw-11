@@ -18,6 +18,7 @@ const refs = {
   form: document.querySelector('.form'),
   gallery: document.querySelector('.gallery'),
   readMore: document.querySelector('.read__more'),
+  backdrop: document.querySelector('.backdrop'),
 };
 
 refs.form.addEventListener('submit', e => {
@@ -31,7 +32,7 @@ async function onSubmit() {
   fetchNewData.resetPage();
 
   disabledBtn('submit');
-
+  refs.backdrop.classList.remove('hidden');
   const response = await fetchNewData.makeRequest(queryValue);
 
   pagination.paginationContainer.innerHTML = '';
@@ -65,7 +66,7 @@ async function onSubmit() {
   renderMarkup(response.hits);
 
   gallery.refresh();
-
+  refs.backdrop.classList.add('hidden');
   removeDisabledBtn('submit');
 }
 
@@ -149,6 +150,7 @@ document
   });
 
 async function onChangePage(ev) {
+  refs.backdrop.classList.remove('hidden');
   if (ev.textContent == '<') {
     fetchNewData.setPage(Number(fetchNewData.page) - 1);
 
@@ -213,7 +215,7 @@ async function onChangePage(ev) {
     pagination.renderPagination(pag);
   } else {
     ev = ev.textContent;
-    fetchNewData.setPage(ev);
+    fetchNewData.setPage(+ev);
     const response = await fetchNewData.makeRequest(queryValue);
     pagination.paginationContainer.innerHTML = '';
     clearAMarkup();
@@ -224,5 +226,8 @@ async function onChangePage(ev) {
 
     pagination.renderPagination(pag);
   }
+
   gallery.refresh();
+
+  refs.backdrop.classList.add('hidden');
 }
