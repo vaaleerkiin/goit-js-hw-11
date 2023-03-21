@@ -47,6 +47,7 @@ async function onSubmit() {
   }
 
   if (response.hits.length === 0) {
+    refs.backdrop.classList.add('hidden');
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
