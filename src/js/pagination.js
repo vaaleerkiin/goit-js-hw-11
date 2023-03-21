@@ -8,7 +8,7 @@ export default class Pagination {
       startPage = 1;
       endPage = totalPages;
     } else {
-      if (currentPage <= 6) {
+      if (currentPage <= 5) {
         startPage = 1;
         endPage = 6;
       } else if (currentPage + 4 >= totalPages) {
